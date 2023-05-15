@@ -3,6 +3,7 @@ package com.example.backend.servicesImplementation;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +22,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+//import com.example.backend.EmailService.EmailService;
+import com.example.backend.constatns.JWTConstants;
+import com.example.backend.dto.JwtPayload;
 import com.example.backend.model.Customer;
 import com.example.backend.model.CustomerForApprovement;
 import com.example.backend.repo.CustomerForApprovementRepo;
 import com.example.backend.repo.CustomerRepo;
 import com.example.backend.service.CustomerService;
+import com.example.backend.utils.JsonUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 
 @Service
@@ -100,8 +108,12 @@ public class CustomerServiceImplementation implements CustomerService{
 	}
 
 	@Override
-	public Map<String, String> registerCustomer(@RequestBody Map<String, Object> requestParams) {
+	public Map<String, String> registerCustomer(@RequestBody Map<String, Object> requestParams,String jwtToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+//		 jwtToken = req.getHeader(JWTConstants.JWT_HEADER);
+	    JwtPayload payload= JsonUtils.parseJson(jwtToken);
+	    
 		HashMap<String, String> map = new HashMap<>();
+		String approvementStatus="2";
 
 		String email = (String) requestParams.get("email");
 		String fname = (String) requestParams.get("fname");
@@ -114,6 +126,7 @@ public class CustomerServiceImplementation implements CustomerService{
 
 		byte[] binaryData = Base64.getDecoder().decode(pdf);
 		Binary binary = new Binary(binaryData);
+		customerForApprovement.setApprovementStatus(approvementStatus);
 		customerForApprovement.setFname(fname);
 		customerForApprovement.setLname(lname);
 		customerForApprovement.setCity(city);
@@ -129,6 +142,7 @@ public class CustomerServiceImplementation implements CustomerService{
 		 if(existingRecord.size()>0)	 
 		 {	
 			 
+			 
 			 CustomerForApprovement record = customerForApprovementRepo.findByEmail(email).get(0);
 			 Query query = new Query(Criteria.where("email").is(email));
 			 Update update = new Update().set("pdf", binary);
@@ -137,6 +151,7 @@ public class CustomerServiceImplementation implements CustomerService{
 		 else {
 			 customerForApprovementRepo.save(customerForApprovement);
 		 }
+//		 EmailService.sendmail(customerForApprovement);
 		map.put("result", "submitted");
 		return map;
 	}
@@ -190,10 +205,37 @@ public class CustomerServiceImplementation implements CustomerService{
 		return customerForApprovementRepo.findAllWihoutPdf();
 	}
 
+	@Override
+	public void reviewDoneBy(String customerEmail,String reviewerEmail) {
+		// TODO Auto-generated method stub
+		
+	   customerForApprovementRepo.reviewDoneBy(customerEmail,reviewerEmail);
+	}
+
+	@Override
+	public void approveCustomer(String customerEmail,String pdf,String jwtToken) throws Exception {
+		// TODO Auto-generated method stub
+		byte[] binaryData = Base64.getDecoder().decode(pdf);
+		Binary binary = new Binary(binaryData);
+		JwtPayload payload=JsonUtils.parseJson(jwtToken);
+		String reviewedBy=payload.getSub();
+		System.out.println(reviewedBy);
+	customerForApprovementRepo.approveCustomer(customerEmail,reviewedBy, binary);;
+		
+		
+	}
+
+	@Override
+	public Map<String, String> registerCustomer(Map<String, Object> requestParams) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public void reviewDoneBy(String email) {
 		// TODO Auto-generated method stub
 		
-	   customerForApprovementRepo.reviewDoneBy(email);
 	}
+
 
 }

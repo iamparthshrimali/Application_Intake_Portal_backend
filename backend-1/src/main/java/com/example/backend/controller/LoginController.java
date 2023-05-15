@@ -75,10 +75,6 @@ public class LoginController {
 		return ur.save(user);
 	}
 
-	@GetMapping("/getAll")
-	public List<User> getAllUser() {
-		return ur.findAll();
-	}
 
 	@GetMapping("/getAllEmployees")
 	public List<User> getEmployeeList() {

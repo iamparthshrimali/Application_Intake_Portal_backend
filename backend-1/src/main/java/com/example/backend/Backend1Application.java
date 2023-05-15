@@ -20,23 +20,6 @@ public class Backend1Application {
 		SpringApplication.run(Backend1Application.class, args);
 	}
 
-	
-//	@Bean
-//    public WebMvcConfigurer corsConfigurationSource() {
-//		return new WebMvcConfigurer() {
-//			
-//			@Override
-//			public void addCorsMappings(CorsRegistry registry) {
-//				registry.addMapping("/**")
-//				.exposedHeaders(HttpHeaders.AUTHORIZATION, "X-XSRF-TOKEN")
-//				.allowedOriginPatterns("http://localhost:[*]")
-//				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTION")
-//				.allowCredentials(true);
-//			}
-//		
-//		};
-//		
-//       
-//    }
+	}
 
-}
+

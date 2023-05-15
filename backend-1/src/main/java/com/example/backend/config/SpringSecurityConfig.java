@@ -21,8 +21,11 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.time.Duration;
 import java.util.Collections;
-import com.example.backend.filter.CsrfCookieFilter;
+
+//import com.example.backend.filter.CsrfCookieFilter;
 import com.example.backend.filter.JWTTTokenValidation;
 import com.example.backend.service.UserInfoUserDetailsService;
 
@@ -31,35 +34,35 @@ import jakarta.servlet.http.HttpServletRequest;
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
-	
-	
-	
 
 	// User for creating Autowire of authentication management
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		
+
 		System.out.println();
-		
+
 		return config.getAuthenticationManager();
 	}
-	
-	 @Bean
-	    //authentication
-	    public UserDetailsService userDetailsService() {
 
-	        return new UserInfoUserDetailsService();
-	    }
+	@Bean
+	// authentication
+	public UserDetailsService userDetailsService() {
 
+		return new UserInfoUserDetailsService();
+	}
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		
-		
-		// csrf request handler
-		CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
 
-		// HTTP request handler
+		// csrf
+		CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+		CookieCsrfTokenRepository cookieCsrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		cookieCsrfTokenRepository.setCookieDomain("localhost");
+		cookieCsrfTokenRepository.setParameterName("_csrf");
+		cookieCsrfTokenRepository.setHeaderName("X-XSRF-TOKEN");
+		cookieCsrfTokenRepository.setCookieName("XSRF-TOKEN");
+//		cookieCsrfTokenRepository.setCookieMaxAge((int) Duration.ofMinutes(15).getSeconds());
+
 		http.cors().configurationSource(new CorsConfigurationSource() {
 
 			@Override
@@ -74,30 +77,20 @@ public class SpringSecurityConfig {
 				config.setMaxAge(3600L);
 				return config;
 			}
-		})
-
-				.and()
-//				.csrf((csrf) -> csrf
-//			            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringRequestMatchers("/validateCustomer","/retrieveFile2")
-//			            .csrfTokenRequestHandler(requestHandler))
-				
-//				.csrf().disable()
-
-				.csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler)
-						.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringRequestMatchers("/validateCustomer")
-						.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+		}).and().csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
+				.csrfTokenRepository(cookieCsrfTokenRepository)
+				.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
 
 //				.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-				.addFilterAfter(new JWTTTokenValidation(), BasicAuthenticationFilter.class)
-				
-				.authorizeHttpRequests() 
-//				.requestMatchers("/getCustomersList").hasRole("AGENT")
-//				.requestMatchers("/getListOfCutomerForReview").hasAnyRole("REVIEWER","ADMIN")
-				.requestMatchers("/user", "/register", "/csrf","/retrieveFile2").permitAll()
-				.anyRequest().authenticated()
-				
+				.addFilterAfter(new JWTTTokenValidation(), BasicAuthenticationFilter.class).authorizeHttpRequests()
+				.requestMatchers("/approveCustomer", "/getListOfCutomerForReview").hasAnyRole("REVIEWER", "ADMIN")
+				.requestMatchers("/getCustomersList", "/addCustomer", "/deleteCustomer", "/updateCustomer",
+						"/getAllEmployees", "/isApprove")
+				.hasRole("ADMIN").requestMatchers("/getCustomersListForAgent/*").hasRole("AGENT")
 
-				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.requestMatchers("/user", "/register").permitAll().anyRequest().authenticated()
+
+		;
 
 		return http.build();
 	}
@@ -107,12 +100,12 @@ public class SpringSecurityConfig {
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
+	public AuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setUserDetailsService(userDetailsService());
+		authenticationProvider.setPasswordEncoder(passwordEncoder());
+		return authenticationProvider;
+	}
 }

@@ -3,6 +3,7 @@ package com.example.backend.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,8 @@ import com.example.backend.model.Customer;
 import com.example.backend.model.CustomerForApprovement;
 import com.example.backend.repo.CustomerForApprovementRepo;
 import com.example.backend.repo.CustomerRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 public interface CustomerService {
 
@@ -32,6 +35,11 @@ public interface CustomerService {
 	public Customer updateCustomer(Customer customer);
 	public List<CustomerForApprovement> getCustomerForApprovement();
 	List<CustomerForApprovement> getListOfCutomerForReview();
+	void reviewDoneBy(String email);
+
+	void reviewDoneBy(String customerEmail, String reviewerEmail);
+	Map<String, String> registerCustomer(Map<String, Object> requestParams, String jwtToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
+	void approveCustomer(String customerEmail,String pdf, String jwtToken) throws Exception;
 	
 //	void updateCustomer(Customer customer);
 }

@@ -28,7 +28,7 @@ public class JWTTTokenValidation  extends OncePerRequestFilter {
             throws ServletException, IOException {
     	
     		String jwt1 = request.getHeader(JWTConstants.JWT_HEADER);
-        System.out.println(jwt1);
+//        System.out.println(jwt1);
         if (null != jwt1) {
         	String jwt = jwt1.substring(7);
             try {

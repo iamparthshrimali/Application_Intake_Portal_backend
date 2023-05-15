@@ -4,6 +4,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.Binary;
 import org.springframework.stereotype.Component;
 
+import com.example.backend.dto.ApprovedCustomer;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 
@@ -19,21 +21,21 @@ public class CustomerForApprovement {
 	private String state;
 	private String approvementStatus; // 0->disapproved, 1->Approved, 2->Pending
 	private String addedBy;
-	private int is_customer_approved;
-	@Transient
+//	private ApprovedCustomer approvedCustomer;
 	private Binary pdf;
+	
+	
+	String reviewerEmail;
+	
+	private Binary signedPdf;
 
 
-	public int getIs_customer_approved() {
-		return is_customer_approved;
-	}
 
-	public void setIs_customer_approved(int is_customer_approved) {
-		this.is_customer_approved = is_customer_approved;
-	}
+
+
 
 	public CustomerForApprovement(String email, String fname, String lname, String address, String city, String state,
-			String approvementStatus, String addedBy, int is_customer_approved, Binary pdf) {
+			String approvementStatus, String addedBy, Binary pdf, String reviewerEmail, Binary signedPdf) {
 		super();
 		this.email = email;
 		this.fname = fname;
@@ -43,8 +45,9 @@ public class CustomerForApprovement {
 		this.state = state;
 		this.approvementStatus = approvementStatus;
 		this.addedBy = addedBy;
-		this.is_customer_approved = is_customer_approved;
 		this.pdf = pdf;
+		this.reviewerEmail = reviewerEmail;
+		this.signedPdf = signedPdf;
 	}
 
 	public CustomerForApprovement() {
@@ -127,7 +130,29 @@ public class CustomerForApprovement {
 	public String toString() {
 		return "CustomerForApprovement [email=" + email + ", fname=" + fname + ", lname=" + lname + ", address="
 				+ address + ", city=" + city + ", state=" + state + ", approvementStatus=" + approvementStatus
-				+ ", addedBy=" + addedBy + ", pdf=" + pdf + "]";
+				+ ", addedBy=" + addedBy + ", pdf=" + pdf + ", reviewerEmail=" + reviewerEmail + ", signedPdf="
+				+ signedPdf + "]";
 	}
+
+	public String getReviewerEmail() {
+		return reviewerEmail;
+	}
+
+	public void setReviewerEmail(String reviewerEmail) {
+		this.reviewerEmail = reviewerEmail;
+	}
+
+	public Binary getSignedPdf() {
+		return signedPdf;
+	}
+
+	public void setSignedPdf(Binary signedPdf) {
+		this.signedPdf = signedPdf;
+	}
+
+
+
+
+
 
 }
