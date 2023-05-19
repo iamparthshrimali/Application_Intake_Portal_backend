@@ -20,6 +20,4 @@ public class Backend1Application {
 		SpringApplication.run(Backend1Application.class, args);
 	}
 
-	}
-
-
+}

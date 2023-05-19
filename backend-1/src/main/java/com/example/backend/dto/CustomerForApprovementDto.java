@@ -1,6 +1,11 @@
-package com.example.backend.model;
+package com.example.backend.dto;
+
+
 
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.io.Serializable;
+
 import org.bson.types.Binary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,9 +16,8 @@ import jakarta.persistence.Id;
 import org.springframework.data.annotation.Transient;
 
 
-@Document
 @Component
-public class CustomerForApprovement {
+public class CustomerForApprovementDto   implements Serializable{
 	@Id
 	private String email;
 	private String fname;
@@ -26,7 +30,7 @@ public class CustomerForApprovement {
 //	private ApprovedCustomer approvedCustomer;
 	private String pdfName;
 
-	@Transient
+
 	MultipartFile pdf;
 	
 	public String getPdfName() {
@@ -46,7 +50,7 @@ public class CustomerForApprovement {
 
 
 
-	public CustomerForApprovement(String email, String fname, String lname, String address, String city, String state,
+	public CustomerForApprovementDto(String email, String fname, String lname, String address, String city, String state,
 			String approvementStatus, String addedBy, MultipartFile pdf, String reviewerEmail, Binary signedPdf) {
 		super();
 		this.email = email;
@@ -62,7 +66,7 @@ public class CustomerForApprovement {
 		this.signedPdf = signedPdf;
 	}
 
-	public CustomerForApprovement() {
+	public CustomerForApprovementDto() {
 		super();
 	}
 
