@@ -88,7 +88,7 @@ public class SpringSecurityConfig {
 						"/getAllEmployees", "/isApprove")
 				.hasRole("ADMIN").requestMatchers("/getCustomersListForAgent/*").hasRole("AGENT")
 
-				.requestMatchers("/user", "/register").permitAll().anyRequest().authenticated()
+				.requestMatchers("/user", "/register","/verify").permitAll().anyRequest().authenticated()
 
 		;
 

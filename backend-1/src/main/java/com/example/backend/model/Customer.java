@@ -1,5 +1,6 @@
 package com.example.backend.model;
 
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,7 @@ import org.springframework.data.annotation.Transient;
 @Component
 public class Customer {
 	@Id
+	 @Indexed(unique = true)
 	private String email;
 	private String fname;
 	private String lname;

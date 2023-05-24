@@ -15,9 +15,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 //@EnableSwagger2
 public class Backend1Application {
-
+ 
 	public static void main(String[] args) {
 		SpringApplication.run(Backend1Application.class, args);
 	}
-
+ 
 }

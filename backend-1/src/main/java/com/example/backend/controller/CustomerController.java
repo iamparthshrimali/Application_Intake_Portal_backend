@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.constatns.JWTConstants;
 import com.example.backend.dto.CustomerForApprovementDto;
@@ -59,81 +60,38 @@ public class CustomerController {
 	CustomerForApprovementRepo cr;
 
 
-	@RequestMapping("/retrieveFile2")
-	public Binary downloadFile2(@RequestParam String email) throws IOException {
-		
-		return customerService.downloadFile(email);
-	}
 
-	@RequestMapping("/validateCustomer")
-	public Map<String, String> validateCustomer(@RequestBody Map<String, Object> requestParams,HttpServletRequest req) throws UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
-//		System.out.println("hello validate code......");
-	
-		return customerService.validateCustomer(requestParams);
-
-	}
-
-	@RequestMapping("/registerCustomer")
-	public Map<String, String> registerCustomer(@ModelAttribute CustomerForApprovementDto customerForApprovementDto,HttpServletRequest req) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
-		
-		String jwtToken = req.getHeader(JWTConstants.JWT_HEADER);   
-		return customerService.registerCustomer(customerForApprovementDto,jwtToken);
-	}
-
-	@PostMapping("/approveCustomer")
-	public  ResponseEntity<String> approve(@RequestBody Map<String, Object> requestParams,HttpServletRequest req) throws Exception {
-		String pdf=(String) requestParams.get("signedPdf");
-		String customerEMail=(String) requestParams.get("customerEmail");
-		
-		
-		String jwtToken = req.getHeader(JWTConstants.JWT_HEADER);   
-	
-		 customerService.approveCustomer(customerEMail,pdf,jwtToken);
-//		customerService.approveCustomer(customerForApprovement);
-		return new ResponseEntity<>("Customer appproved succesfully",HttpStatus.OK);
-	}
 
 
 	@RequestMapping("/getCustomersList")
 	public List<Customer> getAllCustomers() {
-		return customerService.getCustomerList();
+		return customerService.getCustomerList(); 
 	}
-
+	
 	// new things
 	@PostMapping("/addCustomer")
 	public ResponseEntity<String> addCustomer(@RequestBody Customer customer) {
 		customerService.addCustomer(customer);
-
+		
 		return new ResponseEntity<String>("Customer added succesfully", HttpStatus.OK);
 	}
-
+	
 	@GetMapping("/deleteCustomer")
 	public ResponseEntity<String> deleteCustomer(@RequestParam String email) {
 		customerService.deleteCustomer(email);
-
+		
 		return new ResponseEntity<String>("Customer deleted succesfully", HttpStatus.OK);
 	}
-
+	
 	@PostMapping("/updateCustomer")
 	public ResponseEntity<String> updateCustomer(@RequestBody Customer customer) {
 		customerService.updateCustomer(customer);
-
+		
 		return new ResponseEntity<String>("Customer updated succesfully", HttpStatus.OK);
 	}
-
-	@GetMapping("/getCustomersListForAgent/{email}")
-	public List<CustomerForApprovement> getAllCustomersForAgent(@PathVariable String email) {
-		System.out.println(email);
-		System.out.println(customerService.getCustomerListForAgent(email));
-//		System.out.println(customerService.getCustomerListForAgent(email));
-		return customerService.getCustomerListForAgent(email);
-	}
 	
-	@GetMapping("/getListOfCutomerForReview")
-	public List<CustomerForApprovement> getListOfCutomerForReview() {
-//		System.out.println(customerService.getCustomerListForAgent(email));
-		return customerService.getListOfCutomerForReview();
-	}
+
+
 	
 
 }

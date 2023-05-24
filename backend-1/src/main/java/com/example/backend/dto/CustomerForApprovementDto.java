@@ -1,7 +1,5 @@
 package com.example.backend.dto;
 
-
-
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -15,9 +13,8 @@ import com.example.backend.dto.ApprovedCustomer;
 import jakarta.persistence.Id;
 import org.springframework.data.annotation.Transient;
 
-
 @Component
-public class CustomerForApprovementDto   implements Serializable{
+public class CustomerForApprovementDto implements Serializable {
 	@Id
 	private String email;
 	private String fname;
@@ -30,9 +27,8 @@ public class CustomerForApprovementDto   implements Serializable{
 //	private ApprovedCustomer approvedCustomer;
 	private String pdfName;
 
-
 	MultipartFile pdf;
-	
+
 	public String getPdfName() {
 		return pdfName;
 	}
@@ -42,16 +38,12 @@ public class CustomerForApprovementDto   implements Serializable{
 	}
 
 	String reviewerEmail;
-	
-	private Binary signedPdf;
 
+	private MultipartFile signedPdf;
 
-
-
-
-
-	public CustomerForApprovementDto(String email, String fname, String lname, String address, String city, String state,
-			String approvementStatus, String addedBy, MultipartFile pdf, String reviewerEmail, Binary signedPdf) {
+	public CustomerForApprovementDto(String email, String fname, String lname, String address, String city,
+			String state, String approvementStatus, String addedBy, MultipartFile pdf, String reviewerEmail,
+			MultipartFile signedPdf) {
 		super();
 		this.email = email;
 		this.fname = fname;
@@ -158,17 +150,12 @@ public class CustomerForApprovementDto   implements Serializable{
 		this.reviewerEmail = reviewerEmail;
 	}
 
-	public Binary getSignedPdf() {
+	public MultipartFile getSignedPdf() {
 		return signedPdf;
 	}
 
-	public void setSignedPdf(Binary signedPdf) {
+	public void setSignedPdf(MultipartFile signedPdf) {
 		this.signedPdf = signedPdf;
 	}
-
-
-
-
-
 
 }

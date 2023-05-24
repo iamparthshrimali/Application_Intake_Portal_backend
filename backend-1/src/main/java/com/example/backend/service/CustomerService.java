@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.dto.CustomerForApprovementDto;
 import com.example.backend.model.Customer;
@@ -28,9 +29,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 public interface CustomerService {
 
-	public Binary downloadFile(@RequestParam String email) throws IOException;
 	public Map<String, String> validateCustomer(@RequestBody Map<String, Object> requestParams);
-	public Map<String, String> registerCustomer(CustomerForApprovementDto customerDto,String jwtToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
+	public Map<String, String> registerCustomer(CustomerForApprovementDto customerDto,String jwtToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException,Exception;
 	public List<Customer> getCustomerList();
 	public  void addCustomer(Customer customer);
 	void deleteCustomer(String email);
@@ -41,7 +41,9 @@ public interface CustomerService {
 
 	void reviewDoneBy(String customerEmail, String reviewerEmail);
 	Map<String, String> registerCustomer(CustomerForApprovement customer, String jwtToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
-	void approveCustomer(String customerEmail,String pdf, String jwtToken) throws Exception;
+	
+	Binary downloadFile(String username, String bucketName) throws IOException;
+	void approveCustomer(String customerEmail, MultipartFile pdf, String jwtToken) throws Exception;
 	
 //	void updateCustomer(Customer customer);
 }

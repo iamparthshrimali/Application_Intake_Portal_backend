@@ -2,6 +2,7 @@ package com.example.backend.model;
 
 import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,12 +14,14 @@ import jakarta.persistence.Transient;
 public class User {
 
 	@Id
+	@Indexed(unique = true)
 	private String id;
 	private String email;
 	private String role;
 	private String mono;
 	private String password;
 	private int is_approved;
+	private int isVerified;
 
 	public int getIs_approved() {
 		return is_approved;
@@ -30,6 +33,27 @@ public class User {
 
 	public User() {
 		super();
+	}
+
+	
+
+	public User(String id, String email, String role, String mono, String password, int is_approved, int isVerified) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.role = role;
+		this.mono = mono;
+		this.password = password;
+		this.is_approved = is_approved;
+		this.isVerified = isVerified;
+	}
+
+	public int getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(int isVerified) {
+		this.isVerified = isVerified;
 	}
 
 	public User(String email, String role, String mono, String password) {
@@ -93,7 +117,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", role=" + role + ", mono=" + mono + ", password=" + password
-				+ ", is_approved=" + is_approved + "]";
+				+ ", is_approved=" + is_approved + ", is_verified=" + is_verified + "]";
 	}
 
 

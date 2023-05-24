@@ -3,6 +3,10 @@ package com.example.backend.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,27 +27,31 @@ import com.example.backend.Exceptions.UserNotApprovedCustomException;
 import com.example.backend.Exceptions.UserNotFoundCustomeException;
 import com.example.backend.model.User;
 import com.example.backend.repo.UserRepo;
+import com.example.backend.service.EmailService;
 import com.example.backend.service.JWTService;
 import com.example.backend.service.UserService;
+import com.example.backend.servicesImplementation.EmailServiceImplementation;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 public class LoginController {
 
+
+	
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	UserRepo ur;
 
-	@Autowired
-	UserService userService;
+
 
 	@Autowired
 	JWTService jwtService;
+	
+	
 
 	@PostMapping("/user")
 	public ResponseEntity<String> loginUser(@RequestBody User user)
@@ -67,29 +75,5 @@ public class LoginController {
 
 	}
 
-	@PostMapping("/register")
-	public User register(@RequestBody User user) {
-		System.out.println(user);
-		String hashPassword = passwordEncoder.encode(user.getPassword());
-		user.setPassword(hashPassword);
-		return ur.save(user);
-	}
-
-
-	@GetMapping("/getAllEmployees")
-	public List<User> getEmployeeList() {
-		return userService.getAllUsers();
-	}
-
-	@PostMapping("/delete")
-	public String deleteByUsername(@RequestBody User user) {
-		System.out.println(user);
-		return userService.deleteByEmail(user.getEmail());
-	}
-
-	@PostMapping("/isApprove")
-	public String isApprove(@RequestBody User user) {
-		userService.updateByEmail(user.getEmail());
-		return "status updated";
-	}
+	
 }

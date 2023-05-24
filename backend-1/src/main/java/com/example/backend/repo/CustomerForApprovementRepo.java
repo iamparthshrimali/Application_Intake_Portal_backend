@@ -13,7 +13,7 @@ import com.example.backend.model.CustomerForApprovement;
 public interface CustomerForApprovementRepo extends MongoRepository<CustomerForApprovement, String> {
 	 
 	
-
+     
 	 List<CustomerForApprovement> findByEmail(String email);
 	 
 	 @Query(value = "{'approvementStatus' :'2'}", fields = "{ 'pdf' : 0 }")
@@ -31,7 +31,7 @@ public interface CustomerForApprovementRepo extends MongoRepository<CustomerForA
 	//approving customer
 	@Query("{ 'email' : ?0  }")
 	@Update("{ '$set' : { 'approvementStatus' :1,'signedPdf':?2,'reviewerEmail':?1} }")
-	void approveCustomer(String customerEmail,String reviewBy,Binary pdf);
+	void approveCustomer(String customerEmail,String reviewBy,String filename);
 	
 	
 

@@ -12,16 +12,9 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +35,10 @@ import com.example.backend.service.S3Service;
 import com.example.backend.utils.JsonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.amazonaws.util.IOUtils;
 
 @Service
@@ -54,8 +51,6 @@ public class CustomerServiceImplementation implements CustomerService {
 	@Autowired
 	CustomerRepo custRepo;
 
-	@Autowired
-	MongoTemplate mongoTemplate;
 
 	@Autowired
 	CustomerForApprovement customerForApprovement;
@@ -64,10 +59,8 @@ public class CustomerServiceImplementation implements CustomerService {
 	CustomerForApprovementRepo customerForApprovementRepo;
 
 	@Override
-	public Binary downloadFile(@RequestParam String username) throws IOException {
-		S3Object object = s3.getObject("customerforapprovement", username);
-		S3ObjectInputStream objectContent = object.getObjectContent();
-		return new Binary(objectContent.readAllBytes());
+	public Binary downloadFile(String bucketName,@RequestParam String username) throws IOException {
+	    return s3Service.downloadFile(bucketName,username);
 
 	}
 
@@ -84,8 +77,9 @@ public class CustomerServiceImplementation implements CustomerService {
 		String state = (String) requestParams.get("state");
 
 		if (custRepo.findByEmail(email).size() > 0) {
+			
 			Customer customer = custRepo.findByEmail(email).get(0);
-			System.out.println("customer found");
+			System.out.println("customer found "+customer);
 			Boolean validFname = false;
 			if (fname != null)
 				validFname = customer.getFname().equalsIgnoreCase(fname.trim());
@@ -94,7 +88,11 @@ public class CustomerServiceImplementation implements CustomerService {
 				validLname = customer.getLname().equalsIgnoreCase(lname.trim());
 			Boolean validCity = false;
 			if (city != null)
-				validCity = customer.getCity().equalsIgnoreCase(city.trim());
+			{
+				System.out.println(customer.getCity());
+				validCity = customer.getCity().trim().equalsIgnoreCase(city.trim());
+				System.out.println(validCity);
+			}
 			Boolean validState = false;
 			if (state != null)
 				validState = customer.getState().equals(state.trim());
@@ -111,8 +109,9 @@ public class CustomerServiceImplementation implements CustomerService {
 	}
 
 	@Override
+//	@Transactional
 	public Map<String, String> registerCustomer(CustomerForApprovementDto customer, String jwtToken)
-			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException,Exception {
 //		 jwtToken = req.getHeader(JWTConstants.JWT_HEADER);
 		JwtPayload payload = JsonUtils.parseJson(jwtToken);
 
@@ -123,7 +122,7 @@ public class CustomerServiceImplementation implements CustomerService {
 		String fname = (String) customer.getFname();
 		String lname = (String) customer.getLname();
 		String city = (String) customer.getCity();
-		String address = (String) customer.getAddedBy();
+		String address = (String) customer.getAddress();
 		String state = (String) customer.getState();
 		MultipartFile pdf = customer.getPdf();
 //		
@@ -151,12 +150,17 @@ public class CustomerServiceImplementation implements CustomerService {
 //			 mongoTemplate.updateFirst(query, update, "customerForApprovement");
 		} else {
 			try {
-				s3Service.saveFile(pdf, email);
+			
+			
+				System.out.println("Saving file to S3 Bucket");
+				s3Service.saveFile(pdf, email,"customerforapprovement");
 				customerForApprovementRepo.save(customerForApprovement);
+				System.out.println("Saved file to s3 bucket");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println("failed to save file");
 				e.printStackTrace();
+				throw new Exception("Failed to save file", e);
 			}
 		}
 //		 EmailService.sendmail(customerForApprovement);
@@ -199,7 +203,7 @@ public class CustomerServiceImplementation implements CustomerService {
 
 	public List<CustomerForApprovement> getCustomerListForAgent(String email) {
 		// TODO Auto-generated method stub
-		return customerForApprovementRepo.findByEmail(email);
+		return customerForApprovementRepo.findByAddedBy(email);
 	}
 
 	public Customer updateCustomer(Customer customer) {
@@ -222,15 +226,15 @@ public class CustomerServiceImplementation implements CustomerService {
 	}
 
 	@Override
-	public void approveCustomer(String customerEmail, String pdf, String jwtToken) throws Exception {
+	public void approveCustomer(String customerEmail, MultipartFile pdf, String jwtToken) throws Exception {
 		// TODO Auto-generated method stub
-		byte[] binaryData = Base64.getDecoder().decode(pdf);
-		Binary binary = new Binary(binaryData);
+		
 		JwtPayload payload = JsonUtils.parseJson(jwtToken);
 		String reviewedBy = payload.getSub();
 		System.out.println(reviewedBy);
-		customerForApprovementRepo.approveCustomer(customerEmail, reviewedBy, binary);
-		;
+		s3Service.saveFile(pdf, customerEmail,"approvedcustomers");
+		customerForApprovementRepo.approveCustomer(customerEmail, reviewedBy, customerEmail);
+		
 
 	}
 
